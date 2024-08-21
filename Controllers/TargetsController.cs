@@ -25,19 +25,20 @@ namespace MossadAgentsAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTarget()
         {
-            var attacks = await _context.Targets.ToListAsync();
 
+            int status = StatusCodes.Status200OK;
+            var targets = await this._context.Targets.ToListAsync();
             return StatusCode(
-            StatusCodes.Status200OK,
-            attacks
-            );
+                status,
+                targets
+                );
         }
 
         // GET api/Targets/id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTargetById(Guid id)
         {
-            Agent target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
+            Target target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
             if (target == null) return NotFound();
             return StatusCode(
             StatusCodes.Status200OK,
@@ -51,9 +52,10 @@ namespace MossadAgentsAPI.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateTarget([FromBody] Target newTarget)
         {
+            if (newTarget == null) return NotFound();
             Guid newTargetId = Guid.NewGuid();
             newTarget.Id = newTargetId;
-            await _context.AddAsync(newTarget);
+            await _context.Targets.AddAsync(newTarget);
             await _context.SaveChangesAsync();
             return StatusCode(
                 StatusCodes.Status201Created,
@@ -85,12 +87,15 @@ namespace MossadAgentsAPI.Controllers
         [HttpPut("{id}/move")]
         public async Task<IActionResult> UpdateLocations(Guid id, [FromBody] Dictionary<string, string> direction)
         {
-            if (id == null) return NotFound();
+            if (id == null || direction == null) return NotFound();
             var target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
             if(target == null) return NotFound();
             
-            MapLocation NewmapLocation = UpdateLocation.Move(direction.Keys.ToString(), target.Location);
-            target.Location = NewmapLocation;
+            // return the new location to be updated
+            MapLocation NewMapLocation = UpdateLocation.Move(direction.Keys.ToString(), target.Location);
+
+            // update the new location
+            target.Location = NewMapLocation;
             _context.Targets.Update(target);
             await _context.SaveChangesAsync();
 

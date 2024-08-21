@@ -5,8 +5,10 @@ using MossadAgentsAPI.Controllers;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 builder.Services.AddDbContext<MossadAgentsAPIContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("MossadAgentsAPIContext") ?? throw new InvalidOperationException("Connection string 'MossadAgentsAPIContext' not found.")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'MossadAgentsAPIContext' not found.")));
 
 // Add services to the container.
 
@@ -23,6 +25,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

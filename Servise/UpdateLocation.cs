@@ -10,8 +10,10 @@ namespace MossadAgentsAPI.Servise
             Dictionary<string, MapLocation> directionDict = MapingDirections.GetDict();
 
             MapLocation mapLocation = directionDict[directions];
+            location.X += mapLocation.X;
+            location.Y += mapLocation.Y;
 
-            return mapLocation;
+            return location;
         }
     }
 }
