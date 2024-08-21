@@ -1,12 +1,16 @@
 ﻿using MossadAgentsAPI.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace MossadAgentsAPI.Models
 {
     public class Target
     {
-        public string Name { get; set; }
-        public string Role { get; set; }
-        public Location Location { get; set; }
-        public TargetStatus Status { get; set; }
+        [Key]
+        public Guid Id { get; set; }
+        public string name { get; set; }
+        public string position { get; set; }
+        public string photo_url { get; set; }
+        public Location? Location { get; set; }
+        public TargetStatus Status { get; set; } = TargetStatus.Alive;
     }
 }

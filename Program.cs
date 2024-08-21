@@ -1,4 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using MossadAgentsAPI.Data;
+using MossadAgentsAPI.Controllers;
+
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<MossadAgentsAPIContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MossadAgentsAPIContext") ?? throw new InvalidOperationException("Connection string 'MossadAgentsAPIContext' not found.")));
 
 // Add services to the container.
 
@@ -19,5 +27,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+//app.MapAgentEndpoints();
 
 app.Run();
