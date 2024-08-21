@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MossadAgentsAPI.Data;
 using MossadAgentsAPI.Enums;
 using MossadAgentsAPI.Models;
+using MossadAgentsAPI.Servise;
 
 namespace MossadAgentsAPI.Controllers
 {
@@ -64,7 +65,7 @@ namespace MossadAgentsAPI.Controllers
         [HttpPut("{id}/pin")]
         [Produces("Application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> InitilizeLocation(Guid id, [FromBody] Location location)
+        public async Task<IActionResult> InitilizeLocation(Guid id, [FromBody] MapLocation location)
         {
             // Search the target to be update by id
             var target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
@@ -80,11 +81,20 @@ namespace MossadAgentsAPI.Controllers
             return StatusCode(StatusCodes.Status201Created);
         }
 
-
-        // PUT api/<AgentsController>/id
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        // PUT api/agents/id
+        [HttpPut("{id}/move")]
+        public async Task<IActionResult> UpdateLocations(Guid id, [FromBody] Dictionary<string, string> direction)
         {
+            if (id == null) return NotFound();
+            var target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
+            if(target == null) return NotFound();
+            
+            MapLocation NewmapLocation = UpdateLocation.Move(direction.Keys.ToString(), target.Location);
+            target.Location = NewmapLocation;
+            _context.Targets.Update(target);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         // DELETE api/<AgentsController>/5

@@ -13,7 +13,7 @@ namespace MossadAgentsAPI.Models
         public Guid Id { get; set; }
         public string Image { get; set; }
         public string Nickname { get; set; }
-        public Location Location { get; set; }
+        public MapLocation Location { get; set; }
         public AgentStatus Status { get; set; }
     }
 }
