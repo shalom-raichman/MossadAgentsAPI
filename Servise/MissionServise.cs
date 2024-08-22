@@ -9,6 +9,7 @@ namespace MossadAgentsAPI.Servise
     {
         private readonly MossadAgentsAPIContext _context;
 
+        MissionServise() { }
         MissionServise(MossadAgentsAPIContext context)
         {
             _context = context;
@@ -21,7 +22,7 @@ namespace MossadAgentsAPI.Servise
                 else {return false;}
         }
 
-        public static Agent SearchAgentInRange(Target target, DbSet<MossadAgentsAPI.Models.Agent> agents)
+        public static Agent SearchAgentInRange(Target target, List<Agent> agents)
         {
             foreach (var agent in agents)
             {
@@ -34,7 +35,7 @@ namespace MossadAgentsAPI.Servise
         }
 
         // return mission if rools valid
-        public static Mission CreteMission(Target target, DbSet<MossadAgentsAPI.Models.Agent> agents)
+        public static Mission CreteMission(Target target, List<Agent> agents)
         {
             Agent agent = SearchAgentInRange(target, agents);
             if (agent != null)
@@ -43,6 +44,7 @@ namespace MossadAgentsAPI.Servise
                 mission.Agent = agent;
                 mission.Target = target;
                 mission.Status = MissionStatus.Proposal;
+                return mission;
             }
             return null;
         }

@@ -10,7 +10,7 @@ namespace MossadAgentsAPI.Models
         public Target Target { get; set; }
         public double? ExecutionTime { get; set; }
         public double? ActualExecutionTime { get; set; }
-        public MissionStatus Status { get; set; }
+        public MissionStatus? Status { get; set; }
 
     }
 }

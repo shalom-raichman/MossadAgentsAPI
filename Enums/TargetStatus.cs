@@ -3,6 +3,7 @@
     public enum TargetStatus
     {
         Alive,
+        OnPresud,
         Dead
     }
 }

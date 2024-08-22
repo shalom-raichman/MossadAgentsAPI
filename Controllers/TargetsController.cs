@@ -20,7 +20,7 @@ namespace MossadAgentsAPI.Controllers
 
 
 
-
+        // return all targets
         // GET: api/Targets
         [HttpGet]
         public async Task<IActionResult> GetTarget()
@@ -34,6 +34,7 @@ namespace MossadAgentsAPI.Controllers
                 );
         }
 
+        // return target by id
         // GET api/Targets/id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTargetById(Guid id)
@@ -64,6 +65,7 @@ namespace MossadAgentsAPI.Controllers
             );
         }
 
+        // pin target on the map
         // PUT api/targets/{id}/pin
         [HttpPut("{id}/pin")]
         [Produces("Application/json")]
@@ -87,6 +89,7 @@ namespace MossadAgentsAPI.Controllers
                 );
         }
 
+        // move target on the map
         // PUT api/agents/id
         [HttpPut("{id}/move")]
         public async Task<IActionResult> MoveTarget(Guid id, [FromBody] Dictionary<string, string> direction)
@@ -104,6 +107,14 @@ namespace MossadAgentsAPI.Controllers
             target.coordinates = newCoordinates;
             _context.Targets.Update(target);
             await _context.SaveChangesAsync();
+
+            Mission newMission = MissionServise.CreteMission(target, _context.Agents.Include(c => c.coordinates).ToList());
+            //List<Mission> missionsToDelete =  MissionServise.UnsportedMissins(_context.Missions);
+            if (newMission != null)
+            {
+                await _context.Missions.AddAsync(newMission);
+                await _context.SaveChangesAsync();
+            }
 
             return StatusCode(StatusCodes.Status201Created,
                 new { oldCoordinates = direction, newdirection = newCoordinates}
