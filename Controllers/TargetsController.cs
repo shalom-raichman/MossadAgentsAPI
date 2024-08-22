@@ -27,7 +27,7 @@ namespace MossadAgentsAPI.Controllers
         {
 
             int status = StatusCodes.Status200OK;
-            var targets = await this._context.Targets.ToListAsync();
+            var targets = await this._context.Targets.Include(c => c.coordinates).ToListAsync();
             return StatusCode(
                 status,
                 targets
@@ -78,18 +78,21 @@ namespace MossadAgentsAPI.Controllers
             // update the location
             target.coordinates = location;
             _context.Targets.Update(target);
+            _context.coordinates.Update(target.coordinates);
             await _context.SaveChangesAsync();
 
-            return StatusCode(StatusCodes.Status201Created);
+            return StatusCode(StatusCodes.Status201Created, 
+                new {target.coordinates}
+                );
         }
 
         // PUT api/agents/id
         [HttpPut("{id}/move")]
         public async Task<IActionResult> MoveTarget(Guid id, [FromBody] Dictionary<string, string> direction)
         {
-            if (id == null || direction == null) return NotFound();
+            //if (id == null || direction == null) return NotFound();
 
-            var target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
+            var target = await _context.Targets.Include(c => c.coordinates).FirstOrDefaultAsync(Target => Target.Id == id);
 
             if(target == null) return NotFound();
             

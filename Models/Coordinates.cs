@@ -4,6 +4,7 @@ namespace MossadAgentsAPI.Models
 {
     public class Coordinates
     {
+        public Coordinates() { }
         public Coordinates(double x, double y)
         {
             X = x;
