@@ -108,13 +108,9 @@ namespace MossadAgentsAPI.Controllers
             _context.Targets.Update(target);
             await _context.SaveChangesAsync();
 
-            Mission newMission = MissionServise.CreteMission(target, _context.Agents.Include(c => c.coordinates).ToList());
-            //List<Mission> missionsToDelete =  MissionServise.UnsportedMissins(_context.Missions);
-            if (newMission != null)
-            {
-                await _context.Missions.AddAsync(newMission);
-                await _context.SaveChangesAsync();
-            }
+            MissionServise missionServise = new MissionServise();
+            missionServise.DleteUnsportedMissins();
+            await missionServise.CreteMission(target);
 
             return StatusCode(StatusCodes.Status201Created,
                 new { oldCoordinates = direction, newdirection = newCoordinates}

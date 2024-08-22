@@ -9,22 +9,22 @@ namespace MossadAgentsAPI.Servise
     {
         private readonly MossadAgentsAPIContext _context;
 
-        MissionServise() { }
+        public MissionServise() { }
         MissionServise(MossadAgentsAPIContext context)
         {
             _context = context;
         }
 
-        public static bool IsInRange(Coordinates targetCoordinates, Coordinates agentCoordinates)
+        public bool IsInRange(Coordinates targetCoordinates, Coordinates agentCoordinates)
         {
                 double distans = Calculations.GetDistans(targetCoordinates, agentCoordinates);
                 if (distans <= 200) {return true;}
                 else {return false;}
         }
 
-        public static Agent SearchAgentInRange(Target target, List<Agent> agents)
+        public Agent SearchAgentInRange(Target target)
         {
-            foreach (var agent in agents)
+            foreach (var agent in _context.Agents)
             {
                 if (IsInRange(target.coordinates, agent.coordinates))
                 {
@@ -35,32 +35,37 @@ namespace MossadAgentsAPI.Servise
         }
 
         // return mission if rools valid
-        public static Mission CreteMission(Target target, List<Agent> agents)
+        public async Task CreteMission(Target target)
         {
-            Agent agent = SearchAgentInRange(target, agents);
-            if (agent != null)
+            Agent agent = SearchAgentInRange(target);
+            if (agent != null && agent.Status != AgentStatus.OnMission)
             {
                 Mission mission = new Mission();
                 mission.Agent = agent;
                 mission.Target = target;
                 mission.Status = MissionStatus.Proposal;
-                return mission;
+                agent.Status = AgentStatus.OnMission;
+
+                _context.Agents.Update(agent);
+                await _context.Missions.AddAsync(mission);
+                await _context.SaveChangesAsync();
             }
-            return null;
         }
 
-        public static List<Mission> UnsportedMissins(DbSet<MossadAgentsAPI.Models.Mission> missions)
+        public void DleteUnsportedMissins()
         {
+            // bug to fix !!!!!!!!!
+
             List<Mission> missions_list = new List<Mission>();
-            foreach (var mission in missions)
+            foreach (var mission in _context.Missions.ToList())
             {
                 if(!IsInRange(mission.Target.coordinates, mission.Agent.coordinates))
                 {
-                    missions.Add(mission);
+                    _context.Missions.Remove(mission);
+                    _context.SaveChanges();
+                    Console.WriteLine($"mission {mission.Id} deleted from data base");
                 }
             }
-
-            return missions_list;
         }
 
 
