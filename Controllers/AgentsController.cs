@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MossadAgentsAPI.Data;
 using MossadAgentsAPI.Models;
+using MossadAgentsAPI.Servise;
 
 namespace MossadAgentsAPI.Controllers
 {
@@ -17,25 +18,24 @@ namespace MossadAgentsAPI.Controllers
         }
 
 
-
-
         // GET: api/Agents
         [HttpGet]
-        public async Task<IActionResult> GetAttacks()
+        public async Task<IActionResult> GetAgents()
         {
-            var attacks = await _context.Agents.ToListAsync();
 
+            int status = StatusCodes.Status200OK;
+            var Agents = await this._context.Agents.Include(c => c.coordinates).ToListAsync();
             return StatusCode(
-            StatusCodes.Status200OK,
-            attacks
-            );
+                status,
+                Agents
+                );
         }
 
-        // GET api/Agents/id
+        // GET api/Agent/id
         [HttpGet("{id}")]
-        public async Task<IActionResult> AtackStatus(Guid id)
+        public async Task<IActionResult> GetTAgentById(Guid id)
         {
-            Agent agent = await _context.Agents.FirstOrDefaultAsync(agent => agent.Id == id);
+            Agent agent = await _context.Agents.FirstOrDefaultAsync(agent => agent.id == id);
             if (agent == null) return NotFound();
             return StatusCode(
             StatusCodes.Status200OK,
@@ -43,23 +43,80 @@ namespace MossadAgentsAPI.Controllers
             );
         }
 
-        // POST api/<AgentsController>
+        // POST: create new agent
         [HttpPost]
-        public void Post([FromBody] string value)
+        [Produces("Application/json")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateTarget([FromBody] Agent newAgent)
         {
-
+            if (newAgent == null) return NotFound();
+            Guid newAgentId = Guid.NewGuid();
+            newAgent.id = newAgentId;
+            newAgent.Status = Enums.AgentStatus.Sleep;
+            await _context.Agents.AddAsync(newAgent);
+            await _context.SaveChangesAsync();
+            return StatusCode(
+                StatusCodes.Status201Created,
+                newAgentId
+            );
         }
 
-        // PUT api/<AgentsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        // PUT api/agents/{id}/pin
+        [HttpPut("{id}/pin")]
+        [Produces("Application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> InitilizeLocation(Guid id, [FromBody] Coordinates coordinates)
         {
+            // Search the target to be update by id
+            var agent = await _context.Agents.FirstOrDefaultAsync(agent => agent.id == id);
+
+            // return not found message if not found
+            if (agent == null) return NotFound();
+
+            // update the location
+            agent.coordinates = coordinates;
+            _context.Agents.Update(agent);
+            _context.coordinates.Update(agent.coordinates);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(StatusCodes.Status201Created);
         }
 
-        // DELETE api/<AgentsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // PUT api/agents/{id}/move
+        [HttpPut("{id}/move")]
+        public async Task<IActionResult> MoveTarget(Guid id, [FromBody] Dictionary<string, string> direction)
         {
+            if (id == null || direction == null) return NotFound();
+
+            var agent = await _context.Agents.Include(c => c.coordinates).FirstOrDefaultAsync(agent => agent.id == id);
+
+            if (agent == null) return NotFound();
+
+            // check if the agent is on mission
+            if (agent.Status == Enums.AgentStatus.OnMission) {
+                return StatusCode(StatusCodes.Status201Created,
+                new { message = "agent is on mission" }
+                );
+            }
+            // check if cen move agent without exit borders
+            else if (!BordersEnsure.AllowToMove(agent)) 
+            {
+                return StatusCode(StatusCodes.Status201Created,
+                new { message = "cenot move agent outside of borders", currntLocation = agent.coordinates }
+                );
+            }
+
+            // get the new location to be updated
+            Coordinates newCoordinates = UpdateCoordinates.Move(direction, agent.coordinates);
+
+            // update the new location
+            agent.coordinates = newCoordinates;
+            _context.Agents.Update(agent);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(StatusCodes.Status201Created,
+                new { oldCoordinates = direction, newdirection = newCoordinates }
+                );
         }
     }
 }

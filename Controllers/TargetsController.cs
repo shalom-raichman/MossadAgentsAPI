@@ -55,6 +55,7 @@ namespace MossadAgentsAPI.Controllers
             if (newTarget == null) return NotFound();
             Guid newTargetId = Guid.NewGuid();
             newTarget.Id = newTargetId;
+            newTarget.Status = TargetStatus.Alive;
             await _context.Targets.AddAsync(newTarget);
             await _context.SaveChangesAsync();
             return StatusCode(
@@ -107,12 +108,6 @@ namespace MossadAgentsAPI.Controllers
             return StatusCode(StatusCodes.Status201Created,
                 new { oldCoordinates = direction, newdirection = newCoordinates}
                 );
-        }
-
-        // DELETE api/<AgentsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

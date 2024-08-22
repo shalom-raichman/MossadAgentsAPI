@@ -10,10 +10,10 @@ namespace MossadAgentsAPI.Models
     public class Agent
     {
         [Key]
-        public Guid? Id { get; set; }
-        public string Image { get; set; }
-        public string Nickname { get; set; }
-        public Coordinates? direction { get; set; }
+        public Guid? id { get; set; }
+        public string photo_url { get; set; }
+        public string nickname { get; set; }
+        public Coordinates? coordinates { get; set; }
         public AgentStatus? Status { get; set; }
     }
 }
