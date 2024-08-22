@@ -18,6 +18,7 @@ namespace MossadAgentsAPI.Data
         public DbSet<MossadAgentsAPI.Models.Agent> Agents { get; set; } = default!;
         public DbSet<MossadAgentsAPI.Models.Target> Targets { get; set; } = default!;
         public DbSet<MossadAgentsAPI.Models.Mission> Missions { get; set; } = default!;
+        public DbSet<MossadAgentsAPI.Models.Coordinates> Coordinates { get; set; } = default!;
 
     }
 }

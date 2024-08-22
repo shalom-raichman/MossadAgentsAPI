@@ -67,7 +67,7 @@ namespace MossadAgentsAPI.Controllers
         [HttpPut("{id}/pin")]
         [Produces("Application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> InitilizeLocation(Guid id, [FromBody] MapLocation location)
+        public async Task<IActionResult> InitilizeLocation(Guid id, [FromBody] Coordinates location)
         {
             // Search the target to be update by id
             var target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
@@ -76,7 +76,7 @@ namespace MossadAgentsAPI.Controllers
             if (target == null) return NotFound();
             
             // update the location
-            target.Location = location;
+            target.coordinates = location;
             _context.Targets.Update(target);
             await _context.SaveChangesAsync();
 
@@ -85,21 +85,25 @@ namespace MossadAgentsAPI.Controllers
 
         // PUT api/agents/id
         [HttpPut("{id}/move")]
-        public async Task<IActionResult> UpdateLocations(Guid id, [FromBody] Dictionary<string, string> direction)
+        public async Task<IActionResult> MoveTarget(Guid id, [FromBody] Dictionary<string, string> direction)
         {
             if (id == null || direction == null) return NotFound();
+
             var target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
+
             if(target == null) return NotFound();
             
-            // return the new location to be updated
-            MapLocation NewMapLocation = UpdateLocation.Move(direction.Keys.ToString(), target.Location);
+            // get the new location to be updated
+            Coordinates newCoordinates = UpdateCoordinates.Move(direction, target.coordinates);
 
             // update the new location
-            target.Location = NewMapLocation;
+            target.coordinates = newCoordinates;
             _context.Targets.Update(target);
             await _context.SaveChangesAsync();
 
-            return StatusCode(StatusCodes.Status201Created);
+            return StatusCode(StatusCodes.Status201Created,
+                new { oldCoordinates = direction, newdirection = newCoordinates}
+                );
         }
 
         // DELETE api/<AgentsController>/5
