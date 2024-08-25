@@ -19,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<MossadAgentsAPIContext>();
 builder.Services.AddScoped<TargetMissionServise>();
+builder.Services.AddScoped<AgentMissionServise>();
 builder.Services.AddScoped<UpdateServise>();
 
 var app = builder.Build();

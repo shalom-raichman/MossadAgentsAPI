@@ -28,38 +28,42 @@ namespace MossadAgentsAPI.Servise
             {
                 if (mission == null) { continue; }
 
-                if (IsMissionsToUpdate(mission)){
+                if (!IsMissionsToUpdate(mission)) { continue; }
 
-                    var agentCoordinates = mission.Agent.coordinates;
-                    var targetCoordinates = mission.Target.coordinates;
+                var agentCoordinates = mission.Agent.coordinates;
+                var targetCoordinates = mission.Target.coordinates;
 
-                    if (agentCoordinates == targetCoordinates)
-                    {
-                        await Kill(mission.Target, mission.Agent, mission);
-                    }
-
-                    double distans = Calculations.GetDistans(agentCoordinates, targetCoordinates);
-
-                    double timeToUpdate = CalculatTimeLeft(distans);
-
-                    mission.ExecutionTime = timeToUpdate;
-
-                    string directAgentToTarget = DirectAgentToTarget(agentCoordinates, targetCoordinates);
-
-                    Dictionary<string, string> direction = new Dictionary<string, string>();
-
-                    direction.Add("direction", directAgentToTarget);
-
-                    var newCoordinates = UpdateCoordinates.Move(direction, agentCoordinates);
-
-                    mission.Agent.coordinates = newCoordinates;
-
-                    if (agentCoordinates == targetCoordinates)
-                    {
-                        await Kill(mission.Target, mission.Agent, mission);
-                    }
-                    
+                if (agentCoordinates.X == targetCoordinates.X && agentCoordinates.Y == targetCoordinates.Y)
+                {
+                    await Kill(mission.Target, mission.Agent, mission);
                 }
+
+                double distans = Calculations.GetDistans(agentCoordinates, targetCoordinates);
+
+                double timeToUpdate = CalculatTimeLeft(distans);
+
+                mission.ExecutionTime = timeToUpdate;
+
+                string directAgentToTarget = DirectAgentToTarget(agentCoordinates, targetCoordinates);
+                //if(directAgentToTarget == "") { continue; }
+
+                Dictionary<string, string> direction = new Dictionary<string, string>();
+
+                direction.Add("direction", directAgentToTarget);
+                var newCoordinates = UpdateCoordinates.Move(direction, agentCoordinates);
+
+                mission.Agent.coordinates = newCoordinates;
+
+                if (agentCoordinates.X == targetCoordinates.X && agentCoordinates.Y == targetCoordinates.Y)
+                {
+                    await Kill(mission.Target, mission.Agent, mission);
+                }
+                _context.Missions.Update(mission);
+                _context.Targets.Update(mission.Target);
+                _context.Agents.Update(mission.Agent);
+                await _context.SaveChangesAsync();
+
+                
             }
         }
 
@@ -77,43 +81,45 @@ namespace MossadAgentsAPI.Servise
             return distans / 5;
         }
 
-        public string DirectAgentToTarget(Coordinates agentCoordinates, Coordinates targetCoordinates)
+        public string DirectAgentToTarget(Coordinates agent, Coordinates target)
         {
-            if (agentCoordinates.X == targetCoordinates.X && targetCoordinates.Y < targetCoordinates.Y)
+            if (agent.X == target.X && agent.Y < target.Y)
             {
                 return "n";
             }
-            if (agentCoordinates.X == targetCoordinates.X && targetCoordinates.Y > targetCoordinates.Y)
+            if (agent.X == target.X && agent.Y > target.Y)
             {
                 return "s";
             }
-            if (agentCoordinates.Y == targetCoordinates.Y && targetCoordinates.X < targetCoordinates.X)
+            //
+            if (agent.Y == target.Y && agent.X < target.X)
             {
                 return "e";
             }
-            if (agentCoordinates.Y == targetCoordinates.Y && targetCoordinates.X > targetCoordinates.X)
+            if (agent.Y == target.Y && agent.X > target.X)
             {
                 return "w";
             }
-            if (agentCoordinates.X > targetCoordinates.X && targetCoordinates.Y > targetCoordinates.Y)
+            //
+            if (agent.X > target.X && agent.Y > target.Y)
             {
                 return "sw";
             }
-            if (agentCoordinates.X < targetCoordinates.Y && targetCoordinates.X < targetCoordinates.Y)
+            if (agent.X < target.Y && agent.X < target.Y)
             {
                 return "ne";
             }
-            if (agentCoordinates.X < targetCoordinates.X && targetCoordinates.Y > targetCoordinates.Y)
+            //
+            if (agent.X < target.X && agent.Y > target.Y)
             {
                 return "se";
             }
-            if (agentCoordinates.X > targetCoordinates.X && targetCoordinates.Y < targetCoordinates.Y)
+            if (agent.X > target.X && agent.Y < target.Y)
             {
                 return "nw";
             }
 
             return "";
-            
         }
 
         public async Task Kill(Target target, Agent agent, Mission mission)
