@@ -48,8 +48,8 @@ namespace MossadAgentsAPI.Controllers
             target
             );
         }
-
-        // POST: create new target
+        // create new target
+        // POST: api/targets
         [HttpPost]
         [Produces("Application/json")]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -86,6 +86,10 @@ namespace MossadAgentsAPI.Controllers
             _context.coordinates.Update(target.coordinates);
             await _context.SaveChangesAsync();
 
+            await _missionServise.DleteUnsportedMissins();
+
+            await _missionServise.CreteMission(target);
+
             return StatusCode(StatusCodes.Status201Created, 
                 new {target.coordinates}
                 );
@@ -96,7 +100,7 @@ namespace MossadAgentsAPI.Controllers
         [HttpPut("{id}/move")]
         public async Task<IActionResult> MoveTarget(Guid id, [FromBody] Dictionary<string, string> direction)
         {
-            //if (id == null || direction == null) return NotFound();
+            if (id == null || direction == null) return NotFound();
 
             var target = await _context.Targets.Include(c => c.coordinates).FirstOrDefaultAsync(Target => Target.Id == id);
 

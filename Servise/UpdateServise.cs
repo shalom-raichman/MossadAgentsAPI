@@ -99,7 +99,7 @@ namespace MossadAgentsAPI.Servise
             {
                 return "sw";
             }
-            if (agentCoordinates.X < targetCoordinates.y && targetCoordinates.X < targetCoordinates.Y)
+            if (agentCoordinates.X < targetCoordinates.Y && targetCoordinates.X < targetCoordinates.Y)
             {
                 return "ne";
             }

@@ -92,6 +92,7 @@ namespace MossadAgentsAPI.Controllers
 
             if (agent == null) return NotFound();
 
+            bool allowToMove = await BordersValidation.AllowToMove(agent);
             // check if the agent is on mission
             if (agent.Status == Enums.AgentStatus.OnMission) {
                 return StatusCode(StatusCodes.Status201Created,
@@ -99,7 +100,7 @@ namespace MossadAgentsAPI.Controllers
                 );
             }
             // check if cen move agent without exit borders
-            else if (!BordersValidation.AllowToMove(agent)) 
+            else if (!allowToMove) 
             {
                 return StatusCode(StatusCodes.Status201Created,
                 new { message = "cenot move agent outside of borders", currntLocation = agent.coordinates }
