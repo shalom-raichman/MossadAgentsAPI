@@ -12,10 +12,12 @@ namespace MossadAgentsAPI.Controllers
     public class MissiionController : ControllerBase
     {
         private readonly MossadAgentsAPIContext _context;
+        private readonly UpdateServise _updateServise;
 
-        public MissiionController(MossadAgentsAPIContext context)
+        public MissiionController(MossadAgentsAPIContext context, UpdateServise updateServise)
         {
             _context = context;
+            _updateServise = updateServise;
         }
 
 
@@ -34,17 +36,33 @@ namespace MossadAgentsAPI.Controllers
                 );
         }
 
-        //// GET api/Targets/id
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> GetTargetById(Guid id)
-        //{
-        //    Target target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
-        //    if (target == null) return NotFound();
-        //    return StatusCode(
-        //    StatusCodes.Status200OK,
-        //    target
-        //    );
-        //}
+        // GET: api/Targets/id
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetMissionById(int id)
+        {
+            Mission mission = await _context.Missions.FirstOrDefaultAsync(m => m.Id == id);
+            if (mission == null) return NotFound();
+
+            return StatusCode(
+            StatusCodes.Status200OK,
+            mission
+            );
+        }
+        
+        // PUT: api/Targets/id
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMissionById(int id)
+        {
+            Mission mission = await _context.Missions.FirstOrDefaultAsync(m => m.Id == id);
+            if (mission == null) return NotFound();
+
+            await _updateServise.UpdateMission();
+
+            return StatusCode(
+            StatusCodes.Status200OK,
+            mission
+            );
+        }
 
         //// POST: create new target
         //[HttpPost]
@@ -75,7 +93,7 @@ namespace MossadAgentsAPI.Controllers
 
         //    // return not found message if not found
         //    if (target == null) return NotFound();
-            
+
         //    // update the location
         //    target.coordinates = location;
         //    _context.Targets.Update(target);
@@ -96,7 +114,7 @@ namespace MossadAgentsAPI.Controllers
         //    var target = await _context.Targets.Include(c => c.coordinates).FirstOrDefaultAsync(Target => Target.Id == id);
 
         //    if(target == null) return NotFound();
-            
+
         //    // get the new location to be updated
         //    Coordinates newCoordinates = UpdateCoordinates.Move(direction, target.coordinates);
 

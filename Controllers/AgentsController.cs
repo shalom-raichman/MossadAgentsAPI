@@ -11,10 +11,14 @@ namespace MossadAgentsAPI.Controllers
     public class AgentsController : ControllerBase
     {
         private readonly MossadAgentsAPIContext _context;
+        private readonly AgentMissionServise _missionServise;
+        private readonly TargetMissionServise _targetMissionServise;
 
-        public AgentsController(MossadAgentsAPIContext context)
+        public AgentsController(MossadAgentsAPIContext context, AgentMissionServise agentMissionServise, TargetMissionServise targetMissionServise)
         {
             _context = context;
+            _missionServise = agentMissionServise;
+            _targetMissionServise = targetMissionServise;
         }
 
 
@@ -79,6 +83,10 @@ namespace MossadAgentsAPI.Controllers
             _context.coordinates.Update(agent.coordinates);
             await _context.SaveChangesAsync();
 
+            await _targetMissionServise.DleteUnsportedMissins();
+
+            await _missionServise.CreteMission(agent);
+
             return StatusCode(StatusCodes.Status201Created);
         }
 
@@ -114,6 +122,10 @@ namespace MossadAgentsAPI.Controllers
             agent.coordinates = newCoordinates;
             _context.Agents.Update(agent);
             await _context.SaveChangesAsync();
+
+            await _targetMissionServise.DleteUnsportedMissins();
+
+            await _missionServise.CreteMission(agent);
 
             return StatusCode(StatusCodes.Status201Created,
                 new { oldCoordinates = direction, newdirection = newCoordinates }

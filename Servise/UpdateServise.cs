@@ -10,7 +10,7 @@ namespace MossadAgentsAPI.Servise
     public class UpdateServise
     {
         private readonly MossadAgentsAPIContext _context;
-        UpdateServise(MossadAgentsAPIContext context)
+        public UpdateServise(MossadAgentsAPIContext context)
         {
             _context = context;
         }
