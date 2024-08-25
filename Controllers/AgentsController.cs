@@ -99,7 +99,7 @@ namespace MossadAgentsAPI.Controllers
                 );
             }
             // check if cen move agent without exit borders
-            else if (!BordersEnsure.AllowToMove(agent)) 
+            else if (!BordersValidation.AllowToMove(agent)) 
             {
                 return StatusCode(StatusCodes.Status201Created,
                 new { message = "cenot move agent outside of borders", currntLocation = agent.coordinates }

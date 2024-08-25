@@ -5,12 +5,10 @@ using MossadAgentsAPI.Models;
 
 namespace MossadAgentsAPI.Servise
 {
-    public class MissionServise
+    public class TargetMissionServise
     {
         private readonly MossadAgentsAPIContext _context;
-
-        public MissionServise() { }
-        MissionServise(MossadAgentsAPIContext context)
+        public TargetMissionServise(MossadAgentsAPIContext context)
         {
             _context = context;
         }
@@ -24,11 +22,11 @@ namespace MossadAgentsAPI.Servise
 
         public Agent SearchAgentInRange(Target target)
         {
-            foreach (var agent in _context.Agents)
+            foreach (var agent in _context.Agents.Include(a => a.coordinates))
             {
                 if (IsInRange(target.coordinates, agent.coordinates))
                 {
-                    return agent;
+                    return agent ;
                 }
             }
             return null;
@@ -45,6 +43,7 @@ namespace MossadAgentsAPI.Servise
                 mission.Target = target;
                 mission.Status = MissionStatus.Proposal;
                 agent.Status = AgentStatus.OnMission;
+                target.Status = TargetStatus.OnPresud;
 
                 _context.Agents.Update(agent);
                 await _context.Missions.AddAsync(mission);
@@ -52,12 +51,11 @@ namespace MossadAgentsAPI.Servise
             }
         }
 
-        public void DleteUnsportedMissins()
+        public async Task DleteUnsportedMissins()
         {
-            // bug to fix !!!!!!!!!
-
             List<Mission> missions_list = new List<Mission>();
-            foreach (var mission in _context.Missions.ToList())
+            var missions = await _context.Missions.Include(m => m.Agent).ThenInclude(a => a.coordinates).ToListAsync();
+            foreach (var mission in missions)
             {
                 if(!IsInRange(mission.Target.coordinates, mission.Agent.coordinates))
                 {

@@ -2,7 +2,7 @@
 
 namespace MossadAgentsAPI.Servise
 {
-    public static class BordersEnsure
+    public static class BordersValidation
     {
         public static bool AllowToMove(Agent agent)
         {

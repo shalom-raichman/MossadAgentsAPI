@@ -12,10 +12,12 @@ namespace MossadAgentsAPI.Controllers
     public class TargetsController : ControllerBase
     {
         private readonly MossadAgentsAPIContext _context;
+        private readonly TargetMissionServise _missionServise;
 
-        public TargetsController(MossadAgentsAPIContext context)
+        public TargetsController(MossadAgentsAPIContext context, TargetMissionServise targetMissionServise)
         {
             _context = context;
+            _missionServise = targetMissionServise;
         }
 
 
@@ -108,12 +110,12 @@ namespace MossadAgentsAPI.Controllers
             _context.Targets.Update(target);
             await _context.SaveChangesAsync();
 
-            MissionServise missionServise = new MissionServise();
-            missionServise.DleteUnsportedMissins();
-            await missionServise.CreteMission(target);
+            await _missionServise.DleteUnsportedMissins();
+
+            await _missionServise.CreteMission(target);
 
             return StatusCode(StatusCodes.Status201Created,
-                new { oldCoordinates = direction, newdirection = newCoordinates}
+                new { newCoordinates = newCoordinates}
                 );
         }
     }
