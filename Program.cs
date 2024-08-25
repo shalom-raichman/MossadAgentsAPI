@@ -21,6 +21,7 @@ builder.Services.AddScoped<MossadAgentsAPIContext>();
 builder.Services.AddScoped<TargetMissionServise>();
 builder.Services.AddScoped<AgentMissionServise>();
 builder.Services.AddScoped<UpdateServise>();
+builder.Services.AddScoped<SetMissionStatus>();
 
 var app = builder.Build();
 

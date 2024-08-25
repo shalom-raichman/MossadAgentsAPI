@@ -39,6 +39,9 @@ namespace MossadAgentsAPI.Servise
                 }
 
                 double distans = Calculations.GetDistans(agentCoordinates, targetCoordinates);
+                mission.distance = distans;
+                _context.Missions.Update(mission);
+                await _context.SaveChangesAsync();
 
                 double timeToUpdate = CalculatTimeLeft(distans);
 

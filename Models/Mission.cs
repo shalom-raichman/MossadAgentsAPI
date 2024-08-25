@@ -11,6 +11,7 @@ namespace MossadAgentsAPI.Models
         public double? ExecutionTime { get; set; }
         public double? ActualExecutionTime { get; set; }
         public MissionStatus? Status { get; set; }
+        public Double? distance { get; set; }
 
     }
 }

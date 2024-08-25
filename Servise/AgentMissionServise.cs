@@ -15,6 +15,7 @@ namespace MossadAgentsAPI.Servise
 
         public bool IsInRange(Coordinates targetCoordinates, Coordinates agentCoordinates)
         {
+            if (agentCoordinates == null || targetCoordinates == null) {return false;}
                 double distans = Calculations.GetDistans(targetCoordinates, agentCoordinates);
                 if (distans <= 200) {return true;}
                 else {return false;}

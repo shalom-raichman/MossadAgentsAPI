@@ -13,11 +13,13 @@ namespace MossadAgentsAPI.Controllers
     {
         private readonly MossadAgentsAPIContext _context;
         private readonly UpdateServise _updateServise;
+        private readonly SetMissionStatus _setMissionStatus;
 
-        public MissiionController(MossadAgentsAPIContext context, UpdateServise updateServise)
+        public MissiionController(MossadAgentsAPIContext context, UpdateServise updateServise, SetMissionStatus setMissionStatus)
         {
             _context = context;
             _updateServise = updateServise;
+            _setMissionStatus = setMissionStatus;
         }
 
 
@@ -29,7 +31,7 @@ namespace MossadAgentsAPI.Controllers
         {
 
             int status = StatusCodes.Status200OK;
-            var missions = await this._context.Missions.Include(c => c.Agent).Include(t => t.Target).ToListAsync();
+            var missions = await this._context.Missions.Include(m => m.Agent).ThenInclude(t => t.coordinates).Include(t => t.Target).ThenInclude(t => t.coordinates).ToListAsync();
             return StatusCode(
                 status,
                 missions
@@ -40,7 +42,12 @@ namespace MossadAgentsAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMissionById(int id)
         {
-            Mission mission = await _context.Missions.FirstOrDefaultAsync(m => m.Id == id);
+            Mission? mission = await _context.Missions
+                .Include(m => m.Target)
+                .ThenInclude(t => t.coordinates)
+                .Include(m => m.Agent)
+                .ThenInclude(a => a.coordinates)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (mission == null) return NotFound();
 
             return StatusCode(
@@ -57,6 +64,21 @@ namespace MossadAgentsAPI.Controllers
             if (mission == null) return NotFound();
 
             await _updateServise.UpdateMission();
+
+            return StatusCode(
+            StatusCodes.Status200OK,
+            mission
+            );
+        }
+        
+        // PUT: api/Targets/id/status
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> SetMissionStstusById(int id)
+        {
+            Mission mission = await _context.Missions.FirstOrDefaultAsync(m => m.Id == id);
+            if (mission == null) return NotFound();
+
+            await _setMissionStatus.SetSttatusToAssignmentToTask(mission);
 
             return StatusCode(
             StatusCodes.Status200OK,
