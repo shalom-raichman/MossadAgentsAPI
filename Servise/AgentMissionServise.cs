@@ -52,7 +52,5 @@ namespace MossadAgentsAPI.Servise
                 await _context.SaveChangesAsync();
             }
         }
-
-
     }
 }

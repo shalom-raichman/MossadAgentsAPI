@@ -6,6 +6,7 @@ namespace MossadAgentsAPI.Servise
     {
         public async static Task<bool> AllowToMove(Agent agent)
         {
+            if (agent == null) { return false; }
             if (agent.coordinates.X > 1000 || agent.coordinates.Y > 1000)
             {
                 return false;

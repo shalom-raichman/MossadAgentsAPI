@@ -6,13 +6,14 @@ using MossadAgentsAPI.Servise;
 
 namespace MossadAgentsAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/[controller]")]
     [ApiController]
     public class AgentsController : ControllerBase
     {
         private readonly MossadAgentsAPIContext _context;
         private readonly AgentMissionServise _missionServise;
         private readonly TargetMissionServise _targetMissionServise;
+        private int Id = 1;
 
         public AgentsController(MossadAgentsAPIContext context, AgentMissionServise agentMissionServise, TargetMissionServise targetMissionServise)
         {
@@ -37,7 +38,7 @@ namespace MossadAgentsAPI.Controllers
 
         // GET api/Agent/id
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTAgentById(Guid id)
+        public async Task<IActionResult> GetTAgentById(int id)
         {
             Agent agent = await _context.Agents.FirstOrDefaultAsync(agent => agent.id == id);
             if (agent == null) return NotFound();
@@ -54,14 +55,15 @@ namespace MossadAgentsAPI.Controllers
         public async Task<IActionResult> CreateTarget([FromBody] Agent newAgent)
         {
             if (newAgent == null) return NotFound();
-            Guid newAgentId = Guid.NewGuid();
-            newAgent.id = newAgentId;
+            //int newAgentId = Id;
+            //Id += 1;
+            //newAgent.id = newAgentId;
             newAgent.Status = Enums.AgentStatus.Sleep;
             await _context.Agents.AddAsync(newAgent);
             await _context.SaveChangesAsync();
             return StatusCode(
                 StatusCodes.Status201Created,
-                newAgentId
+                new { Id =  newAgent.id }
             );
         }
 
@@ -69,7 +71,7 @@ namespace MossadAgentsAPI.Controllers
         [HttpPut("{id}/pin")]
         [Produces("Application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> InitilizeLocation(Guid id, [FromBody] Coordinates coordinates)
+        public async Task<IActionResult> InitilizeLocation(int id, [FromBody] Coordinates coordinates)
         {
             // Search the target to be update by id
             var agent = await _context.Agents.FirstOrDefaultAsync(agent => agent.id == id);
@@ -92,7 +94,7 @@ namespace MossadAgentsAPI.Controllers
 
         // PUT api/agents/{id}/move
         [HttpPut("{id}/move")]
-        public async Task<IActionResult> MoveTarget(Guid id, [FromBody] Dictionary<string, string> direction)
+        public async Task<IActionResult> MoveTarget(int id, [FromBody] Dictionary<string, string> direction)
         {
             if (id == null || direction == null) return NotFound();
 

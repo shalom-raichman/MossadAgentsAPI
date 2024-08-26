@@ -7,15 +7,15 @@ using MossadAgentsAPI.Servise;
 
 namespace MossadAgentsAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/[controller]")]
     [ApiController]
-    public class MissiionController : ControllerBase
+    public class MissionController : ControllerBase
     {
         private readonly MossadAgentsAPIContext _context;
         private readonly UpdateServise _updateServise;
         private readonly SetMissionStatus _setMissionStatus;
 
-        public MissiionController(MossadAgentsAPIContext context, UpdateServise updateServise, SetMissionStatus setMissionStatus)
+        public MissionController(MossadAgentsAPIContext context, UpdateServise updateServise, SetMissionStatus setMissionStatus)
         {
             _context = context;
             _updateServise = updateServise;
@@ -38,7 +38,7 @@ namespace MossadAgentsAPI.Controllers
                 );
         }
 
-        // GET: api/Targets/id
+        // GET: api/mission/id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMissionById(int id)
         {
@@ -56,7 +56,7 @@ namespace MossadAgentsAPI.Controllers
             );
         }
         
-        // PUT: api/Targets/id
+        // PUT: api/Mission/id
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMissionById(int id)
         {
@@ -71,7 +71,18 @@ namespace MossadAgentsAPI.Controllers
             );
         }
         
-        // PUT: api/Targets/id/status
+        // POST: api/Update
+        [HttpPost("Update")]
+        public async Task<IActionResult> UpdateMission()
+        {
+            await _updateServise.UpdateMission();
+
+            return StatusCode(
+            StatusCodes.Status200OK
+            );
+        }
+        
+        // PUT: missions/id/status
         [HttpPut("{id}/status")]
         public async Task<IActionResult> SetMissionStstusById(int id)
         {
@@ -86,68 +97,6 @@ namespace MossadAgentsAPI.Controllers
             );
         }
 
-        //// POST: create new target
-        //[HttpPost]
-        //[Produces("Application/json")]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //public async Task<IActionResult> CreateTarget([FromBody] Target newTarget)
-        //{
-        //    if (newTarget == null) return NotFound();
-        //    Guid newTargetId = Guid.NewGuid();
-        //    newTarget.Id = newTargetId;
-        //    newTarget.Status = TargetStatus.Alive;
-        //    await _context.Targets.AddAsync(newTarget);
-        //    await _context.SaveChangesAsync();
-        //    return StatusCode(
-        //        StatusCodes.Status201Created,
-        //        newTargetId
-        //    );
-        //}
-
-        //// PUT api/targets/{id}/pin
-        //[HttpPut("{id}/pin")]
-        //[Produces("Application/json")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //public async Task<IActionResult> InitilizeLocation(Guid id, [FromBody] Coordinates location)
-        //{
-        //    // Search the target to be update by id
-        //    var target = await _context.Targets.FirstOrDefaultAsync(Target => Target.Id == id);
-
-        //    // return not found message if not found
-        //    if (target == null) return NotFound();
-
-        //    // update the location
-        //    target.coordinates = location;
-        //    _context.Targets.Update(target);
-        //    _context.coordinates.Update(target.coordinates);
-        //    await _context.SaveChangesAsync();
-
-        //    return StatusCode(StatusCodes.Status201Created, 
-        //        new {target.coordinates}
-        //        );
-        //}
-
-        //// PUT api/agents/id
-        //[HttpPut("{id}/move")]
-        //public async Task<IActionResult> MoveTarget(Guid id, [FromBody] Dictionary<string, string> direction)
-        //{
-        //    //if (id == null || direction == null) return NotFound();
-
-        //    var target = await _context.Targets.Include(c => c.coordinates).FirstOrDefaultAsync(Target => Target.Id == id);
-
-        //    if(target == null) return NotFound();
-
-        //    // get the new location to be updated
-        //    Coordinates newCoordinates = UpdateCoordinates.Move(direction, target.coordinates);
-
-        //    // update the new location
-        //    target.coordinates = newCoordinates;
-        //    _context.Targets.Update(target);
-        //    await _context.SaveChangesAsync();
-
-        //    return StatusCode(StatusCodes.Status201Created,
-        //        new { oldCoordinates = direction, newdirection = newCoordinates}
-        //        );
-        //}
+        
     }
 }

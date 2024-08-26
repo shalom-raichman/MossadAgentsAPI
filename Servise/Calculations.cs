@@ -6,6 +6,7 @@ namespace MossadAgentsAPI.Servise
     {
         public static double GetDistans(Coordinates agentCoordinates, Coordinates targetCoordinates)
         {
+            if(agentCoordinates == null || targetCoordinates == null) return 201;
             double x1 = agentCoordinates.X;
             double y1 = agentCoordinates.Y;
             double x2 = targetCoordinates.X;

@@ -4,6 +4,7 @@ using MossadAgentsAPI.Data;
 using MossadAgentsAPI.Enums;
 using MossadAgentsAPI.Models;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MossadAgentsAPI.Servise
 {
@@ -70,6 +71,7 @@ namespace MossadAgentsAPI.Servise
             }
         }
 
+
         public bool IsMissionsToUpdate(Mission mission)
         { 
             if (mission.Status == MissionStatus.AssignmentToTask)
@@ -129,6 +131,7 @@ namespace MossadAgentsAPI.Servise
         {
             target.Status = TargetStatus.Dead;
             agent.Status = AgentStatus.Sleep;
+            agent.Kills += 1;
             mission.Status = MissionStatus.Cmpleted;
 
             _context.Targets.Update(target);

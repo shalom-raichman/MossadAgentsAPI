@@ -58,6 +58,7 @@ namespace MossadAgentsAPI.Servise
             var missions = await _context.Missions.Include(m => m.Agent).ThenInclude(a => a.coordinates).ToListAsync();
             foreach (var mission in missions)
             {
+                if (mission == null || mission.Target == null || mission.Agent == null) continue;
                 if(!IsInRange(mission.Target.coordinates, mission.Agent.coordinates))
                 {
                     _context.Missions.Remove(mission);
