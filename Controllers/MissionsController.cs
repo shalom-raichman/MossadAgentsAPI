@@ -9,13 +9,13 @@ namespace MossadAgentsAPI.Controllers
 {
     [Route("/[controller]")]
     [ApiController]
-    public class MissionController : ControllerBase
+    public class MissionsController : ControllerBase
     {
         private readonly MossadAgentsAPIContext _context;
         private readonly UpdateServise _updateServise;
         private readonly SetMissionStatus _setMissionStatus;
 
-        public MissionController(MossadAgentsAPIContext context, UpdateServise updateServise, SetMissionStatus setMissionStatus)
+        public MissionsController(MossadAgentsAPIContext context, UpdateServise updateServise, SetMissionStatus setMissionStatus)
         {
             _context = context;
             _updateServise = updateServise;
