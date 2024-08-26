@@ -96,7 +96,6 @@ namespace MossadAgentsAPI.Servise
             {
                 return "s";
             }
-            //
             if (agent.Y == target.Y && agent.X < target.X)
             {
                 return "e";
@@ -105,7 +104,6 @@ namespace MossadAgentsAPI.Servise
             {
                 return "w";
             }
-            //
             if (agent.X > target.X && agent.Y > target.Y)
             {
                 return "sw";
@@ -114,7 +112,6 @@ namespace MossadAgentsAPI.Servise
             {
                 return "ne";
             }
-            //
             if (agent.X < target.X && agent.Y > target.Y)
             {
                 return "se";

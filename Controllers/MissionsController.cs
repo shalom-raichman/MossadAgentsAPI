@@ -25,7 +25,7 @@ namespace MossadAgentsAPI.Controllers
 
 
 
-        // GET: api/Missions
+        // GET: api/missions
         [HttpGet]
         public async Task<IActionResult> GetMissions()
         {
@@ -56,7 +56,8 @@ namespace MossadAgentsAPI.Controllers
             );
         }
         
-        // PUT: api/Mission/id
+        // PUT: api/mission/id
+        // update mission by id
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMissionById(int id)
         {
@@ -71,8 +72,8 @@ namespace MossadAgentsAPI.Controllers
             );
         }
         
-        // POST: api/Update
-        [HttpPost("Update")]
+        // POST: api/update
+        [HttpPost("update")]
         public async Task<IActionResult> UpdateMission()
         {
             await _updateServise.UpdateMission();
