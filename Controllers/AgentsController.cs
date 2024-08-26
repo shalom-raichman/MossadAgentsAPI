@@ -102,7 +102,7 @@ namespace MossadAgentsAPI.Controllers
 
             if (agent == null) return NotFound();
 
-            bool allowToMove = await BordersValidation.AllowToMove(agent);
+            bool allowToMove = BordersValidation.IsAgentAllowToMove(agent);
             // check if the agent is on mission
             if (agent.Status == Enums.AgentStatus.OnMission) {
                 return StatusCode(StatusCodes.Status201Created,

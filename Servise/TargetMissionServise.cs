@@ -13,6 +13,7 @@ namespace MossadAgentsAPI.Servise
             _context = context;
         }
 
+        // return true if target and agent in range
         public bool IsInRange(Coordinates targetCoordinates, Coordinates agentCoordinates)
         {
                 double distans = Calculations.GetDistans(targetCoordinates, agentCoordinates);
@@ -20,6 +21,8 @@ namespace MossadAgentsAPI.Servise
                 else {return false;}
         }
 
+        // search if there is angent in the rang of the target
+        // return agent if true and null if false
         public Agent SearchAgentInRange(Target target)
         {
             foreach (var agent in _context.Agents.Include(a => a.coordinates))
@@ -36,17 +39,13 @@ namespace MossadAgentsAPI.Servise
         public async Task CreteMission(Target target)
         {
             Agent agent = SearchAgentInRange(target);
-            if (agent != null && agent.Status != AgentStatus.OnMission)
+            if (agent != null && agent.Status == AgentStatus.Sleep)
             {
                 Mission mission = new Mission();
                 mission.Agent = agent;
                 mission.Target = target;
                 mission.Status = MissionStatus.Proposal;
-                agent.Status = AgentStatus.OnMission;
-                target.Status = TargetStatus.OnPresud;
 
-                _context.Targets.Update(target);
-                _context.Agents.Update(agent);
                 await _context.Missions.AddAsync(mission);
                 await _context.SaveChangesAsync();
             }

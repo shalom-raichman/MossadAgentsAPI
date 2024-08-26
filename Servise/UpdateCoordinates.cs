@@ -5,6 +5,8 @@ namespace MossadAgentsAPI.Servise
 {
     public class UpdateCoordinates
     {
+
+        // return new coordinates by direction
         public static Coordinates Move(Dictionary<string, string> direction, Coordinates coordinates)
         {
             Dictionary<string, Coordinates> directionDict = MapingDirectionsDict.GetDict();
@@ -13,7 +15,6 @@ namespace MossadAgentsAPI.Servise
 
             Coordinates newCoordinates = directionDict[key];
 
-            Console.WriteLine("rech to dict");
             coordinates.X += newCoordinates.X;
             coordinates.Y += newCoordinates.Y;
 

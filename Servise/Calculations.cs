@@ -4,6 +4,8 @@ namespace MossadAgentsAPI.Servise
 {
     public static class Calculations
     {
+
+        // return the distance betwien the agent and target
         public static double GetDistans(Coordinates agentCoordinates, Coordinates targetCoordinates)
         {
             if(agentCoordinates == null || targetCoordinates == null) return 201;

@@ -18,6 +18,7 @@ namespace MossadAgentsAPI.Servise
 
         public async Task UpdateMission()
         {
+            // get all missions from the DB with the agnts and the targets
             var missions = await _context.Missions
                 .Include(m => m.Target)
                 .ThenInclude(t => t.coordinates)
@@ -25,53 +26,69 @@ namespace MossadAgentsAPI.Servise
                 .ThenInclude(m => m.coordinates)
                 .ToListAsync();
 
+            // iterate thrue all the missions
             foreach (var mission in missions)
             {
+                // check if mission is null 
                 if (mission == null) { continue; }
 
+                // check if the mission need update
                 if (!IsMissionsToUpdate(mission)) { continue; }
 
+                // difind the agent and target coordinates
                 var agentCoordinates = mission.Agent.coordinates;
                 var targetCoordinates = mission.Target.coordinates;
 
+                // check if agnt and target on the same coordinates and commit kill
                 if (agentCoordinates.X == targetCoordinates.X && agentCoordinates.Y == targetCoordinates.Y)
                 {
                     await Kill(mission.Target, mission.Agent, mission);
                 }
 
+                // get the distance of agent from targt
                 double distans = Calculations.GetDistans(agentCoordinates, targetCoordinates);
+
+                // update the distance
                 mission.distance = distans;
                 _context.Missions.Update(mission);
                 await _context.SaveChangesAsync();
 
+                // get the time to the kill
                 double timeToUpdate = CalculatTimeLeft(distans);
 
+                // set the time to the kill
                 mission.ExecutionTime = timeToUpdate;
 
+                // get the agent dirction to go
                 string directAgentToTarget = DirectAgentToTarget(agentCoordinates, targetCoordinates);
-                //if(directAgentToTarget == "") { continue; }
 
+                // init dict to hold the dirction the agent shuld go
                 Dictionary<string, string> direction = new Dictionary<string, string>();
-
                 direction.Add("direction", directAgentToTarget);
+                
+                // get the new coordinates of the agent
                 var newCoordinates = UpdateCoordinates.Move(direction, agentCoordinates);
-
+                
+                // set the agent coordinates
                 mission.Agent.coordinates = newCoordinates;
 
-                if (agentCoordinates.X == targetCoordinates.X && agentCoordinates.Y == targetCoordinates.Y)
-                {
-                    await Kill(mission.Target, mission.Agent, mission);
-                }
+                // update the changes in to the DB
                 _context.Missions.Update(mission);
                 _context.Targets.Update(mission.Target);
                 _context.Agents.Update(mission.Agent);
                 await _context.SaveChangesAsync();
 
                 
+                // check again if the agent got to the target
+                if (agentCoordinates.X == targetCoordinates.X && agentCoordinates.Y == targetCoordinates.Y)
+                {
+                    await Kill(mission.Target, mission.Agent, mission);
+                }
             }
         }
 
 
+        // return bool if mission is to be updated
         public bool IsMissionsToUpdate(Mission mission)
         { 
             if (mission.Status == MissionStatus.AssignmentToTask)
@@ -81,11 +98,13 @@ namespace MossadAgentsAPI.Servise
             return false;
         }
 
+        // Calculat Time Left to the kill
         public double CalculatTimeLeft(double distans)
         {
             return distans / 5;
         }
 
+        // algorithem that return the direction of the agent to the target
         public string DirectAgentToTarget(Coordinates agent, Coordinates target)
         {
             if (agent.X == target.X && agent.Y < target.Y)
@@ -124,6 +143,7 @@ namespace MossadAgentsAPI.Servise
             return "";
         }
 
+        // kill target and update the DB
         public async Task Kill(Target target, Agent agent, Mission mission)
         {
             target.Status = TargetStatus.Dead;

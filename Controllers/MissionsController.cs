@@ -76,6 +76,7 @@ namespace MossadAgentsAPI.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> UpdateMission()
         {
+
             await _updateServise.UpdateMission();
 
             return StatusCode(
@@ -87,15 +88,23 @@ namespace MossadAgentsAPI.Controllers
         [HttpPut("{id}/status")]
         public async Task<IActionResult> SetMissionStstusById(int id)
         {
-            Mission mission = await _context.Missions.FirstOrDefaultAsync(m => m.Id == id);
+            Mission? mission = await _context.Missions
+                .Include(m => m.Target)
+                .ThenInclude(t => t.coordinates)
+                .Include(m => m.Agent)
+                .ThenInclude(a => a.coordinates)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (mission == null) return NotFound();
 
-            await _setMissionStatus.SetSttatusToAssignmentToTask(mission);
-
-            return StatusCode(
-            StatusCodes.Status200OK,
-            mission
-            );
+            bool response = await _setMissionStatus.SetSttatusToAssignmentToTask(mission);
+            if (response)
+            {
+                return StatusCode(
+                StatusCodes.Status201Created,
+                mission
+                );
+            }
+            return StatusCode(StatusCodes.Status200OK);
         }
 
         

@@ -14,7 +14,7 @@ namespace MossadAgentsAPI.Controllers
         [HttpPost]
         [Produces("Application/json")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public IActionResult CreateLogin([FromBody] Login login)
+        public IActionResult CreateLogin(/*[FromBody] Login login*/)
         {
             
             return StatusCode(

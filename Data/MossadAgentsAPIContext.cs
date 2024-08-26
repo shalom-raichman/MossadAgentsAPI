@@ -12,7 +12,7 @@ namespace MossadAgentsAPI.Data
         public MossadAgentsAPIContext (DbContextOptions<MossadAgentsAPIContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         public DbSet<MossadAgentsAPI.Models.Agent> Agents { get; set; } = default!;
