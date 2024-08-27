@@ -36,22 +36,22 @@ namespace MossadAgentsAPI.Servise
                 _context.Targets.Update(mission.Target);
                 _context.Missions.Update(mission);
                 _context.SaveChanges();
-                await DeleteAgentAtherMissions(mission.Agent);
+                await DeleteAgentAtherMissions(mission);
                 return true;
             }
             return false;
         }
 
         // delete other agent proposels 
-        public async Task DeleteAgentAtherMissions(Agent agent)
+        public async Task DeleteAgentAtherMissions(Mission mission)
         {
             var missions = _context.Missions.Include(m => m.Agent);
 
-            foreach (var mission in missions)
+            foreach (var item in missions)
             {
-                if (mission.Agent.id == agent.id && mission.Status == MissionStatus.Proposal)
+                if (item.Agent.id == mission.Agent.id && mission.Id != item.Id)
                 {
-                    _context.Missions.Remove(mission);
+                    _context.Missions.Remove(item);
                     await _context.SaveChangesAsync();
                 }
             }

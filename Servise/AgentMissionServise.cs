@@ -13,6 +13,21 @@ namespace MossadAgentsAPI.Servise
             _context = context;
         }
 
+        // return mission if rools valid
+        public async Task CreteMission(Agent agent)
+        {
+            Target target = SearchAgentInRange(agent);
+            if (target != null && target.Status == TargetStatus.Alive)
+            {
+                Mission mission = new Mission();
+                mission.Agent = agent;
+                mission.Target = target;
+                mission.Status = MissionStatus.Proposal;
+
+                await _context.Missions.AddAsync(mission);
+                await _context.SaveChangesAsync();
+            }
+        }
         public bool IsInRange(Coordinates targetCoordinates, Coordinates agentCoordinates)
         {
             if (agentCoordinates == null || targetCoordinates == null) {return false;}
@@ -33,24 +48,5 @@ namespace MossadAgentsAPI.Servise
             return null;
         }
 
-        // return mission if rools valid
-        public async Task CreteMission(Agent agent)
-        {
-            Target target = SearchAgentInRange(agent);
-            if (target != null && target.Status != TargetStatus.OnPresud)
-            {
-                Mission mission = new Mission();
-                mission.Agent = agent;
-                mission.Target = target;
-                mission.Status = MissionStatus.Proposal;
-                agent.Status = AgentStatus.OnMission;
-                target.Status = TargetStatus.OnPresud;
-
-                _context.Targets.Update(target);
-                _context.Agents.Update(agent);
-                await _context.Missions.AddAsync(mission);
-                await _context.SaveChangesAsync();
-            }
-        }
     }
 }

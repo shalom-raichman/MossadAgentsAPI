@@ -13,6 +13,24 @@ namespace MossadAgentsAPI.Servise
             _context = context;
         }
 
+        // create mission if rools valid
+        public async Task CreteMission(Target target)
+        {
+            Agent agent = SearchAgentInRange(target);
+            if (agent != null && agent.Status == AgentStatus.Sleep)
+            {
+                Mission mission = new Mission();
+                mission.Agent = agent;
+                mission.Target = target;
+                mission.Status = MissionStatus.Proposal;
+
+                await _context.Missions.AddAsync(mission);
+                await _context.SaveChangesAsync();
+
+                await DleteUnsportedMissins2(mission);
+            }
+        }
+
         // return true if target and agent in range
         public bool IsInRange(Coordinates targetCoordinates, Coordinates agentCoordinates)
         {
@@ -27,6 +45,7 @@ namespace MossadAgentsAPI.Servise
         {
             foreach (var agent in _context.Agents.Include(a => a.coordinates))
             {
+                if (agent.Status == AgentStatus.OnMission) continue;
                 if (IsInRange(target.coordinates, agent.coordinates))
                 {
                     return agent ;
@@ -35,26 +54,14 @@ namespace MossadAgentsAPI.Servise
             return null;
         }
 
-        // return mission if rools valid
-        public async Task CreteMission(Target target)
-        {
-            Agent agent = SearchAgentInRange(target);
-            if (agent != null && agent.Status == AgentStatus.Sleep)
-            {
-                Mission mission = new Mission();
-                mission.Agent = agent;
-                mission.Target = target;
-                mission.Status = MissionStatus.Proposal;
-
-                await _context.Missions.AddAsync(mission);
-                await _context.SaveChangesAsync();
-            }
-        }
 
         public async Task DleteUnsportedMissins()
         {
             List<Mission> missions_list = new List<Mission>();
-            var missions = await _context.Missions.Include(m => m.Agent).ThenInclude(a => a.coordinates).ToListAsync();
+            var missions = await _context.Missions
+                .Include(m => m.Agent)
+                .ThenInclude(a => a.coordinates)
+                .ToListAsync();
             foreach (var mission in missions)
             {
                 if (mission == null || mission.Target == null || mission.Agent == null) continue;
@@ -63,6 +70,23 @@ namespace MossadAgentsAPI.Servise
                     _context.Missions.Remove(mission);
                     _context.SaveChanges();
                     Console.WriteLine($"mission {mission.Id} deleted from data base");
+                }
+            }
+        }
+        
+        public async Task DleteUnsportedMissins2(Mission mission)
+        {
+            List<Mission> missions_list = new List<Mission>();
+            var missions = await _context.Missions
+                .Include(m => m.Agent)
+                .ThenInclude(a => a.coordinates)
+                .ToListAsync();
+            foreach (var item in missions)
+            {
+                if (item.Agent.id == mission.Agent.id && mission.Id != item.Id)
+                {
+                    _context.Missions.Remove(item);
+                    _context.SaveChanges();
                 }
             }
         }

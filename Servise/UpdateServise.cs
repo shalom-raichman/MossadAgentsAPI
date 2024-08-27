@@ -32,7 +32,7 @@ namespace MossadAgentsAPI.Servise
                 // check if mission is null 
                 if (mission == null) { continue; }
 
-                // check if the mission need update
+                // check if the mission status is active
                 if (!IsMissionsToUpdate(mission)) { continue; }
 
                 // difind the agent and target coordinates
