@@ -45,7 +45,7 @@ namespace MossadAgentsAPI.Servise
         // delete other agent proposels 
         public async Task DeleteAgentAtherMissions(Mission mission)
         {
-            var missions = _context.Missions.Include(m => m.Agent);
+            var missions = await _context.Missions.Include(m => m.Agent).ToArrayAsync();
 
             foreach (var item in missions)
             {

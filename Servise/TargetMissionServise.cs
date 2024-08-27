@@ -17,7 +17,7 @@ namespace MossadAgentsAPI.Servise
         public async Task CreteMission(Target target)
         {
             Agent agent = SearchAgentInRange(target);
-            if (agent != null && agent.Status == AgentStatus.Sleep)
+            if (agent != null && agent.Status == AgentStatus.Sleep && target.Status == TargetStatus.Alive)
             {
                 Mission mission = new Mission();
                 mission.Agent = agent;
